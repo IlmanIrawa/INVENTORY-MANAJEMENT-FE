@@ -3,7 +3,7 @@
     <div class="header">
       <h2>Daftar Data User</h2>
       <button class="add-btn" @click="openAddUserModal">
-        <i class="bi bi-plus-square"></i> Tambah Pengguna
+        <i class="bi bi-clipboard-plus-fill"></i> Tambah Pengguna
       </button>
     </div>
     <div class="table-responsive">

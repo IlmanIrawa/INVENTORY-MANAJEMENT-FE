@@ -28,7 +28,7 @@
         :class="{ active: currentComponent === 'transactions' }"
         @click="$emit('show-component', 'transactions')"
       >
-        <i class="bi bi-bag-check-fill"></i>
+        <i class="bi bi-wallet2"></i>
         <span>Daftar Transaction</span>
       </div>
       
@@ -51,7 +51,7 @@
         :class="{ active: currentComponent === 'transactions' }"
         @click="$emit('show-component', 'transactions')"
       >
-        <i class="bi bi-bag-check-fill"></i>
+        <i class="bi bi-wallet2"></i>
         <span>Daftar Transaction</span>
       </div>
       
@@ -91,7 +91,7 @@ export default {
   left: 0;
   bottom: 0;
   width: 250px;
-  background-color: rgb(167, 169, 179);
+  background-color: rgb(192, 199, 199);
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
   z-index: 100;

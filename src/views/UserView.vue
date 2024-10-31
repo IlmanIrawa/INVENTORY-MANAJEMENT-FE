@@ -64,7 +64,7 @@ export default {
 
 @media (max-width: 576px) {
   .user-view {
-    margin-left: 0; /* Remove sidebar margin on mobile */
+    margin-left: 0; 
     padding: 15px;
   }
 

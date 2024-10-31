@@ -1,117 +1,106 @@
 <template>
   <div>
-    <form @submit.prevent="submitForm">
-      <table>
-        <tr>
-          <td>Kode Barang</td>
-          <td>
-            <input
-              type="text"
-              v-model="form.code"
-              id="code"
-              :disabled="isEdit"
-              required
-            />
-          </td>
-        </tr>
-        <tr>
-          <td>Nama Barang</td>
-          <td>
-            <input type="text" v-model="form.name" id="name" required />
-          </td>
-        </tr>
-        <tr>
-          <td>Deskripsi</td>
-          <td>
-            <input
-              type="text"
-              v-model="form.description"
-              id="description"
-              required
-            />
-          </td>
-        </tr>
-        <tr>
-          <td>Stok</td>
-          <td>
-            <input 
-              type="number" 
-              v-model.number="form.stock" 
-              id="stock" 
-              required 
-              min="0"
-            />
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <div class="button-group">
-              <button type="submit">
-                {{ isEdit ? "Simpan Perubahan" : "Tambah Barang" }}
-              </button>
-              <button type="button" class="cancel" @click="$emit('cancel')">
-                Batal
-              </button>
-            </div>
-          </td>
-        </tr>
-      </table>
+    <form @submit.prevent="submitForm" class="mb-3">
+      <div class="mb-3">
+        <label for="kode" class="form-label">Kode Barang</label>
+        <input
+          type="number"
+          v-model="form.kode"
+          id="kode"
+          class="form-control"
+          :disabled="isEdit"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="name" class="form-label">Nama Barang</label>
+        <input
+          type="text"
+          v-model="form.nama"
+          id="nama"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="deskripsi" class="form-label">Deskripsi</label>
+
+        <input
+          type="text"
+          v-model="form.deskripsi"
+          id="deskripsi"
+          class="form-control"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="stok" class="form-label">Stok</label>
+        <input
+          type="number"
+          v-model="form.stok"
+          id="stok"
+          class="form-control"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-success">
+        {{ isEdit ? "Simpan Perubahan" : "Tambah Barang" }}
+      </button>
     </form>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'ItemForm',
+  name: "ItemForm",
   props: {
     item: {
       type: Object,
       default: () => ({
-        code: '',
-        name: '',
-        description: '',
-        stock: 0
-      })
+        code: "",
+        name: "",
+        description: "",
+        stock: 0,
+      }),
     },
     isEdit: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       form: {
-        code: '',
-        name: '',
-        description: '',
-        stock: 0
-      }
-    }
+        code: "",
+        name: "",
+        description: "",
+        stock: 0,
+      },
+    };
   },
   watch: {
     item: {
       immediate: true,
       handler(newItem) {
         this.form = {
-          code: newItem.code || '',
-          name: newItem.name || '',
-          description: newItem.description || '',
-          stock: newItem.stock || 0
+          code: newItem.code || "",
+          name: newItem.name || "",
+          description: newItem.description || "",
+          stock: newItem.stock || 0,
         };
-      }
-    }
+      },
+    },
   },
   methods: {
     submitForm() {
       if (this.form.stock < 0) {
-        alert('Stok tidak boleh negatif');
+        alert("Stok tidak boleh negatif");
         return;
       }
-      
-      this.$emit('submit', { ...this.form });
-    }
-  }
+
+      this.$emit("submit", { ...this.form });
+    },
+  },
 };
 </script>
 

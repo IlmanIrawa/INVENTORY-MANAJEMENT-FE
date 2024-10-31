@@ -1,170 +1,161 @@
 <template>
   <div>
-    <form @submit.prevent="submitForm">
-      <h2>Peminjaman Barang</h2>
+    <form @submit.prevent="submitForm" class="mb-3">
+      <div class="mb-3">
+        <label for="kode" class="form-label">Kode Barang</label>
 
-      <div>
-        <label for="kode">Kode Barang:</label>
-        <input type="text" v-model="form.kode" id="kode" :disabled="true" />
+        <input
+          type="number"
+          v-model="form.kode"
+          id="kode"
+          class="form-control"
+          :disabled="isEdit"
+          required
+        />
       </div>
 
-      <div>
-        <label for="nama">Nama Produk:</label>
-        <input type="text" v-model="form.nama" id="nama" :disabled="true" />
+      <div class="mb-3">
+        <label for="name" class="form-label">Nama Barang</label>
+
+        <input
+          type="text"
+          v-model="form.nama"
+          id="nama"
+          class="form-control"
+          required
+        />
       </div>
 
-      <div>
-        <label for="deskripsi">Deskripsi:</label>
+      <div class="mb-3">
+        <label for="deskripsi" class="form-label">Deskripsi</label>
+
         <input
           type="text"
           v-model="form.deskripsi"
           id="deskripsi"
-          :disabled="true"
+          class="form-control"
+          required
         />
       </div>
 
-      <div>
-        <label for="tanggal_pinjam">Tanggal Pinjam:</label>
-        <input type="date" v-model="form.tanggal_pinjam" id="tanggal_pinjam" />
-      </div>
+      <div class="mb-3">
+        <label for="stok" class="form-label">Stok</label>
 
-      <div>
-        <label for="tanggal_kembali">Tanggal Kembali:</label>
         <input
-          type="date"
-          v-model="form.tanggal_kembali"
-          id="tanggal_kembali"
+          type="number"
+          v-model="form.stok"
+          id="stok"
+          class="form-control"
+          required
         />
       </div>
 
-      <div>
-        <label for="jumlah_pinjam">Jumlah Pinjam:</label>
-        <input type="number" v-model="form.jumlah_pinjam" id="jumlah_pinjam" />
-      </div>
-
-      <div class="button-container">
-        <button type="button" @click="cancelForm">Batal</button>
-        <button type="submit">Ajukan</button>
-      </div>
+      <button type="submit" class="btn btn-success">
+        {{ isEdit ? "Simpan Perubahan" : "Tambah Barang" }}
+      </button>
     </form>
   </div>
 </template>
 
 <script>
 export default {
-  name: "PeminjamanForm",
-
+  name: "ItemForm",
   props: {
     item: {
       type: Object,
-      default: () => ({}),
+      default: () => ({
+        code: "",
+        name: "",
+        description: "",
+        stock: 0,
+      }),
     },
     isEdit: {
       type: Boolean,
       default: false,
     },
   },
-
   data() {
     return {
       form: {
-        kode: this.item ? this.item.code : "",
-        nama: this.item ? this.item.name : "",
-        deskripsi: this.item ? this.item.description : "",
-        tanggal_pinjam: "",
-        tanggal_kembali: "",
-        jumlah_pinjam: 1,
+        code: "",
+        name: "",
+        description: "",
+        stock: 0,
       },
     };
   },
-
-  methods: {
-    submitForm() {
-      // Emit custom event 'submit' dengan payload data form
-      this.$emit("submit", { ...this.form });
-    },
-
-    cancelForm() {
-      // Emit custom event 'cancel' tanpa payload
-      this.$emit("cancel");
+  watch: {
+    item: {
+      immediate: true,
+      handler(newItem) {
+        this.form = {
+          code: newItem.code || "",
+          name: newItem.name || "",
+          description: newItem.description || "",
+          stock: newItem.stock || 0,
+        };
+      },
     },
   },
-
-  watch: {
-    item(newItem) {
-      if (newItem) {
-        this.form.code = newItem.code;
-        this.form.name = newItem.name;
-        this.form.description = newItem.description;
+  methods: {
+    submitForm() {
+      if (this.form.stock < 0) {
+        alert("Stok tidak boleh negatif");
+        return;
       }
+
+      this.$emit("submit", { ...this.form });
     },
   },
 };
 </script>
 
 <style scoped>
-.button-container {
-  margin-top: 1rem;
-  display: flex;
-  gap: 1rem;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+table {
+  width: 100%;
   max-width: 500px;
-  margin: 0 auto;
-  padding: 1rem;
+  margin: 20px auto;
 }
 
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
+td {
+  padding: 10px;
 }
 
 input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+  padding: 8px;
+  border: 1px solid #ddd;
   border-radius: 4px;
 }
 
 input:disabled {
   background-color: #f5f5f5;
-  cursor: not-allowed;
 }
 
 button {
-  padding: 0.5rem 1rem;
+  padding: 8px 16px;
+  background-color: #4f46e5;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
+  transition: background-color 0.2s;
 }
 
-button[type="submit"] {
-  background-color: #4caf50;
-  color: white;
+button:hover {
+  background-color: #4338ca;
+}
+.button-group {
+  display: flex;
+  gap: 1rem;
 }
 
-button[type="submit"]:hover {
-  background-color: #45a049;
+.cancel {
+  background-color: #dc2626;
 }
 
-button[type="button"] {
-  background-color: #f44336;
-  color: white;
-}
-
-button[type="button"]:hover {
-  background-color: #da190b;
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
+.cancel:hover {
+  background-color: #b91c1c;
 }
 </style>

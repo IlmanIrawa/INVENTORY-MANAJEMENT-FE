@@ -41,7 +41,7 @@
                 @click="$emit('return-item', transaction)"
               >
                 <i ></i>
-                Kembalikan
+                <i class="bi bi-arrow-counterclockwise"></i>Kembalikan
               </button>
               <span v-else class="returned-text">Sudah Dikembalikan</span>
             </td>

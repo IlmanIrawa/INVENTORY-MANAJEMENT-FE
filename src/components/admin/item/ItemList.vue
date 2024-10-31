@@ -1,18 +1,24 @@
 <template>
-  <div class="item-list">
-    <div class="header">
-      <h2>Daftar Item</h2>
-      <button class="add-btn" @click="showAddForm"> <i class="bi bi-plus-square"></i> Tambah Item</button>
+  <div class="item-list container py-4">
+    <div class="header d-flex justify-content-between align-items-center mb-3">
+      <h2>Daftar Barang</h2>
+
+      <button class="btn btn-primary" @click="showAddForm">
+        <i class="bi bi-clipboard-plus-fill"></i> Tambah Item
+      </button>
     </div>
-    <div class="item-cards">
+
+    <div class="item-cards row">
       <ItemCard
         v-for="item in items"
         :key="item.code"
         :item="item"
-        @edit-item="handleEdit"
+        @edit-item="editItem" 
         @delete-item="handleDelete"
+        class="col-md-3 col-lg-4"
       />
     </div>
+
     <Modal :visible="showForm" @close="cancelEditForm">
       <ItemForm
         :item="selectedItem"
@@ -26,7 +32,7 @@
 
 <script>
 import ItemCard from "./ItemCard.vue";
-import Modal from '@/components/ModalApp.vue'; 
+import Modal from "@/components/ModalApp.vue";
 import ItemForm from "./ItemForm.vue";
 
 export default {
@@ -47,22 +53,36 @@ export default {
         },
         {
           code: "2",
-          name: "Laptop",
-          description: "Laptop dengan spesifikasi tinggi",
+          name: "Printer",
+          description: "Ini adalah printer Canon",
           stock: 10,
         },
         {
           code: "3",
-          name: "Charger",
-          description: "Charger dengan fast Caharging",
+          name: "Printer",
+          description: "Ini adalah printer Canon",
           stock: 10,
         },
         {
           code: "4",
-          name: "Tas Sekolah",
-          description: "Gak tau kenapa ada tas sekolah disini",
+          name: "Printer",
+          description: "Ini adalah printer Canon",
           stock: 10,
         },
+        {
+          code: "5",
+          name: "Printer",
+          description: "Ini adalah printer Canon",
+          stock: 10,
+        },
+        {
+          code: "6",
+          name: "Printer",
+          description: "Ini adalah printer Canon",
+          stock: 10,
+        },
+
+        // Data lainnya
       ],
       showForm: false,
       selectedItem: null,
@@ -81,25 +101,21 @@ export default {
       this.showForm = true;
     },
 
-    // Langsung gunakan sebagai handler untuk edit-item
-    handleEdit(item) {
-      this.selectedItem = { ...item }; // Buat shallow copy dari item
+    editItem(item) {
+      this.selectedItem = { ...item };
       this.isEdit = true;
       this.showForm = true;
     },
 
     handleSubmit(formData) {
       if (this.isEdit) {
-        // Cari dan update item yang ada
         const index = this.items.findIndex(
           (item) => item.code === this.selectedItem.code
         );
         if (index !== -1) {
-          // Gunakan Vue.set atau spread operator untuk memastikan reaktivitas
           this.items.splice(index, 1, { ...formData });
         }
       } else {
-        // Tambah item baru
         this.items.push({ ...formData });
       }
       this.showForm = false;
@@ -122,147 +138,20 @@ export default {
 };
 </script>
 
+
 <style scoped>
-.item-list {
-  width: 77%;
-  padding: 1.5rem;
-  background: #ffffff;
+.item-list{
+  background-color: white;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin: auto;
+  box-shadow:0 0 10px rgba(red, green, blue, alpha) ;
+ 
 }
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem ;
+.header h2{
+  color: rgb(192, 199, 199);
+  font-size: 24px;
 }
-
-.header h2 {
-  color: #1f2937;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.add-btn {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: background-color 0.2s;
-}
-
-.add-btn:hover {
-  background-color: #4338ca;
-}
-
-.table-responsive {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-}
-
-thead {
-  background-color: #f9fafb;
-}
-
-th {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  color: #4b5563;
-  font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-td {
-  padding: 0.75rem 1rem;
-  color: #1f2937;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-tr:hover {
-  background-color: #f9fafb;
-}
-
-.action-column {
-  text-align: center;
-  width: 200px;
-}
-
-.edit-btn,
-.delete-btn {
-  padding: 0.375rem 0.75rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  margin: 0 0.25rem;
-  transition: all 0.2s;
-}
-
-.edit-btn {
-  background-color: #10b981;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #059669;
-}
-
-.delete-btn {
-  background-color: #ef4444;
-  color: white;
-}
-
-.delete-btn:hover {
-  background-color: #dc2626;
-}
-
-@media (max-width: 768px) {
-  .item-list {
-    padding: 1rem;
-  }
-
-  .header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-
-  .header h2 {
-    text-align: center;
-  }
-
-  .add-btn {
-    width: 100%;
-  }
-
-  table {
-    font-size: 0.813rem;
-  }
-
-  th,
-  td {
-    padding: 0.625rem;
-  }
-
-  .action-column {
-    width: auto;
-  }
-
-  .edit-btn,
-  .delete-btn {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.813rem;
-  }
+.container py-4{
+  width: 70%;
 }
 </style>

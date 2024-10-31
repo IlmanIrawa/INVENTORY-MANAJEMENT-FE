@@ -29,16 +29,16 @@
             <td class="action-buttons">
               
               <button
-              
+
                 class="verify-btn"
                 @click="verifikasi(transaction)"
-                :disabled="transaction.status === 'Returned'"
-                :class="{ 'returned-btn': transaction.status === 'Returned' }"
+                :disabled="transaction.status === 'ACC'"
+                :class="{ 'returned-btn': transaction.status === 'ACC' }"
               >
                 {{
-                  transaction.status === "Returned"
-                    ? "Returned"
-                    : "Diverifikasi"
+                  transaction.status === "ACC"
+                    ? "Pengajuan di ACC"
+                    : "Verifikasi"
                 }}
               </button>
             </td>
@@ -121,7 +121,7 @@ export default {
 
       if (index !== -1) {
         // Update status transaksi menjadi "Returned"
-        this.transactions[index].status = "Returned";
+        this.transactions[index].status = "ACC";
 
         // Optional: Emit event ke parent component jika diperlukan
         this.$emit("transaction-verified", transaction.kode);

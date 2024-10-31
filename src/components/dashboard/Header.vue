@@ -5,7 +5,7 @@
       
       
       <!-- Logo/Brand -->
-      <h1 class="brand">INVENTIRY MANAJ</h1>
+      <h1 class="brand">INVENTORY MANAJ</h1>
       <button 
         class="menu-button"
         @click="$emit('toggle-sidebar')"
@@ -88,7 +88,7 @@ export default {
   left: 0;
   right: 0;
   height: 70px;
-  background-color: rgb(167, 169, 179);
+  background-color: rgb(192, 199, 199);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   display: flex;
   justify-content: space-between;
