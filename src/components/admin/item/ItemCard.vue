@@ -9,8 +9,9 @@
           <i class="bi bi-pencil-square"></i> Edit
         </button>
         <button
-          @click="$emit('delete-item', item.code)"
+          @click="confirmDelete"
           class="btn btn-danger delete"
+          :disabled="item.stock === 0"
         >
           <i class="bi bi-trash3"></i> Delete
         </button>
@@ -20,45 +21,58 @@
 </template>
 
 <script>
+import { useItemStore } from "@/store/itemStore"; 
+
 export default {
   name: "ItemCard",
   props: {
-    item: {
-      type: Object,
-      required: true,
+    itemCode: {
+      type: String,
+      required: true, // Mengambil code item dari parent
+    },
+  },
+  computed: {
+    // Mengambil item berdasarkan code dari store
+    item() {
+      const store = useItemStore(); // Mengakses store
+      return store.items.find(item => item.code === this.itemCode) || {}; // Menemukan item berdasarkan code
     },
   },
   methods: {
     editItem() {
       this.$emit("edit-item", this.item);
     },
+    confirmDelete() {
+      if (confirm("Apakah Anda yakin ingin menghapus item ini?")) {
+        this.$emit("delete-item", this.item.code);
+      }
+    },
   },
 };
 </script>
 
-
 <style scoped>
 .item-card {
-transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 .item-card:hover {
-transform: translateY(-5px);
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .item-card .card-title {
-margin: 0 0 10px;
-font-size: 1.25rem;
-color: #333;
+  margin: 0 0 10px;
+  font-size: 1.25rem;
+  color: #333;
 }
 .item-card .card-text {
-margin: 5px 0;
-color: #555;
+  margin: 5px 0;
+  color: #555;
 }
 .item-card .stock {
-font-weight: bold;
-color: #2c3e50;
+  font-weight: bold;
+  color: #2c3e50;
 }
 .item-card button {
-transition: background-color 0.2s;
+  transition: background-color 0.2s;
 }
 </style>

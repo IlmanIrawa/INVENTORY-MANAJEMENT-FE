@@ -2,34 +2,26 @@
   <header class="header">
     <div class="header-left">
       <!-- Toggle Sidebar Button -->
-      
-      
-      <!-- Logo/Brand -->
-      <h1 class="brand">INVENTORY MANAJ</h1>
-      <button 
-        class="menu-button"
-        @click="$emit('toggle-sidebar')"
-      >
-        <i class="bi bi-x-square-fill"></i>
+      <button class="menu-button" @click="$emit('toggle-sidebar')">
+        <i class="fas fa-bars"></i>
       </button>
+
+      <!-- Logo/Brand -->
+      <h1 class="brand">Inventory Manaj</h1>
     </div>
 
     <!-- Search Bar -->
     <div class="search-container">
       <div class="search-box">
         <i class="fas fa-search search-icon"></i>
-        <input 
+        <input
           type="text"
-          placeholder="Search..."
+          placeholder="Search inventory..."
           v-model="searchQuery"
-          @input="handleSearch"
+          @input="emitSearch"
           class="search-input"
         />
-        <button 
-          v-if="searchQuery"
-          @click="clearSearch"
-          class="clear-button"
-        >
+        <button v-if="searchQuery" @click="clearSearch" class="clear-button">
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -37,59 +29,92 @@
 
     <div class="header-right">
       <!-- Role Selector -->
-      <i class="bi bi-person-fill"></i>
-      <select 
+      <select
         class="role-select"
         :value="currentRole"
-        @change="$emit('update-role', $event.target.value)"
+        @change="selectRole($event.target.value)"
       >
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
+        <option value="user">PH Operator</option>
+        <option value="admin">WH Operator</option>
       </select>
+
+      <!-- User Profile -->
+      <div class="user-profile">
+        <i class="fas fa-user"></i>
+      </div>
+    </div>
+
+    <!-- logout-->
+    <div class="logout-container">
+      <button class="logout-btn btn btn-outline-light" @click="logout">
+        Logout
+      </button>
     </div>
   </header>
 </template>
 
 <script>
+import { EventBus } from "@/utils/EventBus";
+
 export default {
-  name: 'Header',
+  data() {
+    return {
+      searchQuery: "", // Untuk search bar
+    };
+  },
+
   props: {
     currentRole: {
       type: String,
-      required: true
+      required: true,
     },
     isSidebarVisible: {
       type: Boolean,
-      required: true
-    }
-  },
-  data() {
-    return {
-      searchQuery: ''
-    }
-  },
-  methods: {
-    handleSearch() {
-      this.$emit('search', this.searchQuery)
+      required: true,
     },
-    clearSearch() {
-      this.searchQuery = ''
-      this.$emit('search', '')
-    }
   },
-  emits: ['update-role', 'toggle-sidebar', 'search']
-}
-</script>
 
-<style scoped>
+  methods: {
+    clearSearch() {
+      this.searchQuery = "";
+      this.emitSearch(); // Emit event kosong
+    },
+
+    emitSearch() {
+      EventBus.emit("search", this.searchQuery);
+    },
+
+    selectRole(role) {
+      const authRole = localStorage.getItem("role");
+      const isAuthenticated = Boolean(localStorage.getItem("auth"));
+
+      if (isAuthenticated && authRole === role) {
+        this.$router.push({ name: role, params: { component: "items" } });
+      } else {
+        alert("You do not have permission to switch to this role.");
+        this.$router.push({ name: "login" });
+        this.$emit("toggle-sidebar", false);
+      }
+    },
+
+    logout() {
+      localStorage.removeItem("auth");
+      localStorage.removeItem("role");
+      this.$router.push({ name: "login" });
+    },
+  },
+};
+</script>
+  
+  <style scoped>
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 70px;
-  background-color: rgb(192, 199, 199);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: rgb(195, 202, 206);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -141,7 +166,6 @@ export default {
   width: 100%;
   padding: 10px 40px;
   border: 1px solid #ddd;
-  border-radius: 5px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
 }
@@ -198,10 +222,6 @@ export default {
   justify-content: center;
   cursor: pointer;
 }
-.role-select{
-  background-color: rgb(161, 196, 161);
-  border-radius: 10%;
-}
 
 .user-profile:hover {
   background-color: #e0e0e0;
@@ -213,15 +233,15 @@ export default {
     max-width: none;
     margin: 0 10px;
   }
-  
+
   .header-left {
     min-width: auto;
   }
-  
+
   .header-right {
     min-width: auto;
   }
-  
+
   .brand {
     display: none;
   }
@@ -231,7 +251,7 @@ export default {
   .header {
     padding: 0 10px;
   }
-  
+
   .search-input {
     padding: 8px 35px;
   }

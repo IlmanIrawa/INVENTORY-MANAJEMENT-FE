@@ -1,3 +1,4 @@
+<!-- ItemForm.vue -->
 <template>
   <div>
     <form @submit.prevent="submitForm" class="mb-3">
@@ -5,7 +6,7 @@
         <label for="kode" class="form-label">Kode Barang</label>
         <input
           type="number"
-          v-model="form.kode"
+          v-model="form.code"
           id="kode"
           class="form-control"
           :disabled="isEdit"
@@ -16,29 +17,28 @@
         <label for="name" class="form-label">Nama Barang</label>
         <input
           type="text"
-          v-model="form.nama"
-          id="nama"
+          v-model="form.name"
+          id="name"
           class="form-control"
           required
         />
       </div>
       <div class="mb-3">
-        <label for="deskripsi" class="form-label">Deskripsi</label>
-
+        <label for="description" class="form-label">Deskripsi</label>
         <input
           type="text"
-          v-model="form.deskripsi"
-          id="deskripsi"
+          v-model="form.description"
+          id="description"
           class="form-control"
           required
         />
       </div>
       <div class="mb-3">
-        <label for="stok" class="form-label">Stok</label>
+        <label for="stock" class="form-label">Stok</label>
         <input
           type="number"
-          v-model="form.stok"
-          id="stok"
+          v-model="form.stock"
+          id="stock"
           class="form-control"
           required
         />
@@ -52,7 +52,6 @@
 
 <script>
 export default {
-  name: "ItemForm",
   props: {
     item: {
       type: Object,
@@ -82,12 +81,7 @@ export default {
     item: {
       immediate: true,
       handler(newItem) {
-        this.form = {
-          code: newItem.code || "",
-          name: newItem.name || "",
-          description: newItem.description || "",
-          stock: newItem.stock || 0,
-        };
+        this.form = { ...newItem }; // Sinkronkan form dengan data yang diberikan
       },
     },
   },
@@ -98,57 +92,31 @@ export default {
         return;
       }
 
-      this.$emit("submit", { ...this.form });
+      this.$emit("submit", { ...this.form }); // Emit event submit dengan data form
     },
   },
 };
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  max-width: 500px;
-  margin: 20px auto;
+form {
+  max-width: 600px;
+  margin: 0 auto;
 }
-
-td {
-  padding: 10px;
-}
-
 input {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-
-input:disabled {
-  background-color: #f5f5f5;
-}
-
 button {
   padding: 8px 16px;
   background-color: #4f46e5;
   color: white;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
 }
-
 button:hover {
   background-color: #4338ca;
-}
-.button-group {
-  display: flex;
-  gap: 1rem;
-}
-
-.cancel {
-  background-color: #dc2626;
-}
-
-.cancel:hover {
-  background-color: #b91c1c;
 }
 </style>

@@ -10,148 +10,116 @@
 
     <div class="item-cards row">
       <ItemCard
-        v-for="item in items"
+        v-for="item in filteredItems"
         :key="item.code"
+        :itemCode="item.code"
         :item="item"
-        @edit-item="editItem" 
-        @delete-item="handleDelete"
+        @edit-item="editItem"
+        @delete-item="handleDelete(item.code)" 
         class="col-md-3 col-lg-4"
       />
     </div>
 
-    <Modal :visible="showForm" @close="cancelEditForm">
+    <ModalApp :visible="showForm" @close="cancelEditForm">
       <ItemForm
         :item="selectedItem"
         :isEdit="isEdit"
         @submit="handleSubmit"
         @cancel="cancelEditForm"
       />
-    </Modal>
+    </ModalApp>
   </div>
 </template>
 
 <script>
-import ItemCard from "./ItemCard.vue";
-import Modal from "@/components/ModalApp.vue";
-import ItemForm from "./ItemForm.vue";
+import { useItemStore } from "@/store/itemStore";
+import ItemCard from "@/components/admin/item/ItemCard.vue";
+import ModalApp from "@/components/ModalApp.vue";
+import ItemForm from "@/components/admin/item/ItemForm.vue";
+import EventBus from "@/utils/EventBus";
 
 export default {
   components: {
     ItemCard,
-    Modal,
+    ModalApp,
     ItemForm,
   },
-  name: "ItemList",
   data() {
     return {
-      items: [
-        {
-          code: "1",
-          name: "Printer",
-          description: "Ini adalah printer Canon",
-          stock: 10,
-        },
-        {
-          code: "2",
-          name: "Printer",
-          description: "Ini adalah printer Canon",
-          stock: 10,
-        },
-        {
-          code: "3",
-          name: "Printer",
-          description: "Ini adalah printer Canon",
-          stock: 10,
-        },
-        {
-          code: "4",
-          name: "Printer",
-          description: "Ini adalah printer Canon",
-          stock: 10,
-        },
-        {
-          code: "5",
-          name: "Printer",
-          description: "Ini adalah printer Canon",
-          stock: 10,
-        },
-        {
-          code: "6",
-          name: "Printer",
-          description: "Ini adalah printer Canon",
-          stock: 10,
-        },
-
-        // Data lainnya
-      ],
       showForm: false,
       selectedItem: null,
       isEdit: false,
+      searchQuery: "",
     };
+  },
+  computed: {
+    items() {
+      return this.itemStore.items || [];
+    },
+    filteredItems() {
+      return this.items.filter((item) => {
+        const code = item.code ? String(item.code).toLowerCase() : "";
+        const name = item.name ? item.name.toLowerCase() : "";
+        const query = this.searchQuery ? this.searchQuery.toLowerCase() : "";
+        return code.includes(query) || name.includes(query);
+      });
+    },
   },
   methods: {
     showAddForm() {
-      this.selectedItem = {
-        code: "",
-        name: "",
-        description: "",
-        stock: "",
-      };
+      this.selectedItem = { code: "", name: "", description: "", stock: "" };
       this.isEdit = false;
       this.showForm = true;
     },
-
     editItem(item) {
       this.selectedItem = { ...item };
       this.isEdit = true;
       this.showForm = true;
     },
-
-    handleSubmit(formData) {
+    handleSubmit(item) {
       if (this.isEdit) {
-        const index = this.items.findIndex(
-          (item) => item.code === this.selectedItem.code
-        );
-        if (index !== -1) {
-          this.items.splice(index, 1, { ...formData });
-        }
+        this.itemStore.updateItem(item); // Update item jika sedang dalam mode edit
       } else {
-        this.items.push({ ...formData });
+        this.itemStore.addItem(item); // Tambah item baru
       }
       this.showForm = false;
-      this.selectedItem = null;
-      this.isEdit = false;
     },
-
     cancelEditForm() {
       this.showForm = false;
-      this.selectedItem = null;
-      this.isEdit = false;
     },
-
-    handleDelete(code) {
-      if (confirm("Apakah Anda yakin ingin menghapus barang ini?")) {
-        this.items = this.items.filter((item) => item.code !== code);
-      }
+    handleDelete(itemCode) {
+      // Menghapus item berdasarkan kode yang dikirimkan
+      this.itemStore.deleteItem(itemCode);
     },
+    handleSearch(query) {
+      this.searchQuery = query;
+    },
+  },
+  mounted() {
+    EventBus.on("search", this.handleSearch);
+  },
+  beforeUnmount() {
+    EventBus.off("search", this.handleSearch);
+  },
+  setup() {
+    const itemStore = useItemStore();
+    return { itemStore };
   },
 };
 </script>
 
-
 <style scoped>
-.item-list{
+.item-list {
   background-color: white;
   border-radius: 8px;
   margin: auto;
-  box-shadow:0 0 10px rgba(red, green, blue, alpha) ;
- 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
-.header h2{
+.header h2 {
   color: rgb(192, 199, 199);
   font-size: 24px;
 }
-.container py-4{
+.container.py-4 {
   width: 70%;
 }
 </style>

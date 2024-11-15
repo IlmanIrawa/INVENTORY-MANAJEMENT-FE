@@ -1,170 +1,114 @@
 <template>
   <div id="app">
-    <!-- Header Komponen -->
-    <Header 
-      :current-role="currentRole"
-      :is-sidebar-visible="isSidebarVisible"
-      @update-role="handleRoleUpdate"
+    <Header
+      :currentRole="currentRole"
+      @update-role="updateRole"
       @toggle-sidebar="toggleSidebar"
+      :isSidebarVisible="isSidebarVisible"
     />
-    
-    <!-- Sidebar Komponen -->
-    <Sidebar 
-      :current-role="currentRole"
-      :is-sidebar-visible="isSidebarVisible"
-      @show-component="handleComponentChange"
-    />
-
-    <!-- Konten Utama -->
-    <main :class="{ 'content-expanded': !isSidebarVisible }">
-      <!-- Tampilkan AdminView jika role adalah admin -->
-      <AdminView 
-        v-if="currentRole === 'admin'"
-        :current-component="currentComponent"
-        :items="items"
-        :show-item-form="showItemForm"
-        :selected-item="selectedItem"
-        @update:show-item-form="showItemForm = $event"
-        @save-item="handleSaveItem"
-        @edit-item="handleEditItem"
-        @delete-item="handleDeleteItem"
+    <div class="app-content">
+      <Sidebar
+        :currentRole="currentRole"
+        :isSidebarVisible="isSidebarVisible"
+        @showComponent="navigateTo"
       />
-      
-      <!-- Tampilkan UserView jika role adalah user -->
-      <UserView
-        v-if="currentRole === 'user'"
-        :current-component="currentComponent"
-        :items="items"
-      />
-    </main>
-
-    <!-- ModalApp Notifikasi -->
-    <ModalApp 
-      v-if="showModal"
-      :modal-content="modalContent"
-      @close="closeModal"
-    />
+      <div class="main-content" :class="{ expanded: isSidebarVisible }">
+        <router-view
+          :key="$route.fullPath"
+          :currentComponent="$route.params.component"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import Header from '@/components/dashboard/Header.vue'
-import Sidebar from '@/components/dashboard/Sidebar.vue'
-import AdminView from '@/views/AdminView.vue'
-import UserView from '@/views/UserView.vue'
-import ModalApp from '@/components/ModalApp.vue'
+import Header from "./components/dashboard/Header.vue";
+import Sidebar from "./components/dashboard/Sidebar.vue";
+import AdminView from "./views/AdminView.vue";
+import UserView from "./views/UserView.vue";
+import EventBus from "./utils/EventBus";
 
 export default {
-  name: 'App',
   components: {
     Header,
     Sidebar,
-    AdminView,
-    UserView,
-    ModalApp
   },
+
   data() {
     return {
-      currentRole: 'user', 
-      currentComponent: 'items', 
-      isSidebarVisible: true, 
-      items: [
-        {
-          code: 'BRG001',
-          name: 'Laptop Asus ROG',
-          description: 'Laptop Gaming High Performance',
-          stock: 10
-        },
-        {
-          code: 'BRG002',
-          name: 'Mouse Gaming',
-          description: 'Mouse Wireless Gaming RGB',
-          stock: 25
-        },
-        {
-          code: 'BRG003',
-          name: 'Mechanical Keyboard',
-          description: 'Keyboard Mechanical Blue Switch',
-          stock: 15
-        }
-      ],
-      showItemForm: false,
-      selectedItem: null,
-      showModal: false,
-      modalContent: {
-        title: '',
-        message: '',
-        type: ''
-      }
-    }
+      currentRole: this.$route.name || "admin",
+      isSidebarVisible: true,
+      searchTerm: "",
+    };
   },
+
+  watch: {
+    "$route.name"(newRole) {
+      this.currentRole = newRole;
+    },
+  },
+
+  computed: {
+    currentView() {
+      return this.currentRole === "admin" ? AdminView : UserView;
+    },
+  },
+
   methods: {
-    // Handler untuk pergantian role (admin/user)
-    handleRoleUpdate(role) {
-      this.currentRole = role
-      // Reset ke komponen default berdasarkan role
-      this.currentComponent = role === 'admin' ? 'users' : 'items'
-      console.log('Role changed to:', role)
+    updateRole(role) {
+      this.currentRole = role;
+      this.navigateTo("items");
     },
-    
-    // Toggle sidebar (tampil/sembunyi)
+
+    navigateTo(component) {
+      this.$router.push({ name: this.currentRole, params: { component } });
+    },
+
     toggleSidebar() {
-      this.isSidebarVisible = !this.isSidebarVisible
-      console.log('Sidebar toggled:', this.isSidebarVisible)
-    },
-    
-    // Handler untuk pergantian komponen yang ditampilkan
-    handleComponentChange(component) {
-      this.currentComponent = component
-      this.showItemForm = false
-      console.log('Component changed to:', component)
+      this.isSidebarVisible = !this.isSidebarVisible;
     },
 
-    // Handler untuk menyimpan item
-    handleSaveItem(item) {
-      if (this.selectedItem) {
-        // Edit item yang sudah ada
-        const index = this.items.findIndex(i => i.code === item.code)
-        if (index !== -1) {
-          this.items.splice(index, 1, item)
-          this.showNotification('Sukses', 'Item berhasil diperbarui', 'success')
-        }
-      } else {
-        // Tambah item baru
-        this.items.push(item)
-        this.showNotification('Sukses', 'Item berhasil ditambahkan', 'success')
+    handleSearch(newQuery) {
+      console.log("Search term:", newQuery);
+
+      if (this.currentRole === "admin") {
+        console.log("Search in admin items");
+      } else if (this.currentRole === "user") {
+        console.log("Search in user items");
       }
-      this.showItemForm = false
-      this.selectedItem = null
     },
+  },
 
-    // Handler untuk mengedit item
-    handleEditItem(item) {
-      this.selectedItem = { ...item }
-      this.showItemForm = true
-    },
+  mounted() {
+    EventBus.on("search", this.handleSearch);
+  },
 
-    // Handler untuk menghapus item
-    handleDeleteItem(code) {
-      this.items = this.items.filter(item => item.code !== code)
-      this.showNotification('Sukses', 'Item berhasil dihapus', 'success')
-    },
-
-    // Menampilkan notifikasi
-    showNotification(title, message, type) {
-      this.modalContent = { title, message, type }
-      this.showModal = true
-    },
-
-    // Menutup modal
-    closeModal() {
-      this.showModal = false
-      this.modalContent = { title: '', message: '', type: '' }
-    }
-  }
-}
+  beforeUnmount() {
+    EventBus.off("search", this.handleSearch);
+  },
+};
 </script>
 
 <style>
-/* ... style tetap sama ... */
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+nav {
+  padding: 30px;
+}
+
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+nav a.router-link-exact-active {
+  color: #42b983;
+}
 </style>

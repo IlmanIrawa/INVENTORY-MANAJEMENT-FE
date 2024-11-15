@@ -19,7 +19,7 @@
         :class="{ active: currentComponent === 'items' }"
         @click="$emit('show-component', 'items')"
       >
-        <i class="bi bi-clipboard-data"></i>
+        <i class="bi bi-calendar4-event"></i>
         <span>Daftar Item</span>
       </div>
       
@@ -42,7 +42,7 @@
         :class="{ active: currentComponent === 'items' }"
         @click="$emit('show-component', 'items')"
       >
-         <i class="bi bi-clipboard-data"></i>
+         <i class="bi bi-calendar4-event"></i>
         <span>Daftar Item</span>
       </div>
       
@@ -78,11 +78,16 @@ export default {
     isSidebarVisible: {
       type: Boolean,
       required: true
+    },
+    currentComponent: {
+      type: String,
+      required: true
     }
   },
   emits: ['show-component']
 }
 </script>
+
 
 <style scoped>
 .sidebar {
@@ -91,7 +96,7 @@ export default {
   left: 0;
   bottom: 0;
   width: 250px;
-  background-color: rgb(192, 199, 199);
+  background-color: rgb(195, 202, 206);
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
   z-index: 100;
