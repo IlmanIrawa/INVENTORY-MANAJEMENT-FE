@@ -54,7 +54,8 @@
 </template>
 
 <script>
-import { EventBus } from "@/utils/EventBus";
+import { useAuthStore } from "@/store/authStore";
+import EventBus from "@/utils/EventBus";
 
 export default {
   data() {
@@ -63,14 +64,10 @@ export default {
     };
   },
 
-  props: {
-    currentRole: {
-      type: String,
-      required: true,
-    },
-    isSidebarVisible: {
-      type: Boolean,
-      required: true,
+  computed: {
+    currentRole() {
+      const authStore = useAuthStore();
+      return authStore.role; // Ambil langsung dari store Pinia
     },
   },
 
@@ -85,7 +82,8 @@ export default {
     },
 
     selectRole(role) {
-      const authRole = localStorage.getItem("role");
+      const authStore = useAuthStore();
+      const authRole = authStore.role; // Gunakan state dari Pinia
       const isAuthenticated = Boolean(localStorage.getItem("auth"));
 
       if (isAuthenticated && authRole === role) {
@@ -98,15 +96,15 @@ export default {
     },
 
     logout() {
-      localStorage.removeItem("auth");
-      localStorage.removeItem("role");
+      const authStore = useAuthStore();
+      authStore.logout(); // Logout dari store Pinia
       this.$router.push({ name: "login" });
     },
   },
 };
 </script>
-  
-  <style scoped>
+
+<style scoped>
 .header {
   position: fixed;
   top: 0;

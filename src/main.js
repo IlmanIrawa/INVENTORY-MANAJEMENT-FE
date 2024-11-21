@@ -1,3 +1,4 @@
+// main.js
 import { createApp } from "vue";
 import App from "./App.vue";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -10,11 +11,9 @@ import { createPiniaMiddleware } from "./plugins/piniaMiddleware";
 import piniaPersistedstate from "pinia-plugin-persistedstate";
 
 const pinia = createPinia();
-// Gunakan middleware custom Anda
 pinia.use(createPiniaMiddleware());
-// Gunakan plugin persisted state dari 'pinia-plugin-persistedstate'
 pinia.use(piniaPersistedstate);
-const app = createApp(App).use(router);
+const app = createApp(App);
+app.use(router); // Gunakan router hanya sekali
 app.use(pinia);
-app.use(router);
 app.mount("#app");

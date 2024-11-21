@@ -1,18 +1,26 @@
 <template>
   <div id="app">
     <Header
+      v-show="showHeader"
       :currentRole="currentRole"
       @update-role="updateRole"
       @toggle-sidebar="toggleSidebar"
       :isSidebarVisible="isSidebarVisible"
     />
-    <div class="app-content">
+
+    <div class="app-content" :class="{ noHeader: !showHeader }">
       <Sidebar
+        v-show="showSidebar"
         :currentRole="currentRole"
         :isSidebarVisible="isSidebarVisible"
         @showComponent="navigateTo"
+        :currentComponent="$route.params.component" 
       />
-      <div class="main-content" :class="{ expanded: isSidebarVisible }">
+
+      <div
+        class="main-content"
+        :class="{ expanded: isSidebarVisible && showSidebar }"
+      >
         <router-view
           :key="$route.fullPath"
           :currentComponent="$route.params.component"
@@ -25,8 +33,6 @@
 <script>
 import Header from "./components/dashboard/Header.vue";
 import Sidebar from "./components/dashboard/Sidebar.vue";
-import AdminView from "./views/AdminView.vue";
-import UserView from "./views/UserView.vue";
 import EventBus from "./utils/EventBus";
 
 export default {
@@ -37,32 +43,46 @@ export default {
 
   data() {
     return {
-      currentRole: this.$route.name || "admin",
+      // Mengambil currentRole dari params jika ada, atau default "admin"
+      currentRole: this.$route.params.role || "admin",
       isSidebarVisible: true,
       searchTerm: "",
     };
   },
 
-  watch: {
-    "$route.name"(newRole) {
-      this.currentRole = newRole;
+  computed: {
+    showHeader() {
+      // Menyesuaikan apakah header harus ditampilkan berdasarkan metadata route
+      return this.$route.meta?.hideHeader !== true;
+    },
+
+    showSidebar() {
+      // Menyesuaikan apakah sidebar harus ditampilkan berdasarkan metadata route
+      return this.$route.meta?.hideSidebar !== true;
     },
   },
 
-  computed: {
-    currentView() {
-      return this.currentRole === "admin" ? AdminView : UserView;
+  watch: {
+    // Mengupdate currentRole setiap kali rute berubah
+    "$route.name"(newRole) {
+      this.currentRole = newRole;
     },
   },
 
   methods: {
     updateRole(role) {
       this.currentRole = role;
-      this.navigateTo("items");
     },
 
     navigateTo(component) {
-      this.$router.push({ name: this.currentRole, params: { component } });
+      // Navigasi berdasarkan role dan komponen
+      if (this.currentRole === "ADMIN" && component) {
+        this.$router.push({ name: "admin", params: { component } });
+      } else if (this.currentRole === "USER") {
+        this.$router.push({ name: "user" });
+      } else {
+        this.$router.push({ name: "login" });
+      }
     },
 
     toggleSidebar() {
@@ -81,34 +101,23 @@ export default {
   },
 
   mounted() {
+    // Menghubungkan event search dengan EventBus
     EventBus.on("search", this.handleSearch);
   },
 
   beforeUnmount() {
+    // Melepaskan event search ketika komponen di-unmount
     EventBus.off("search", this.handleSearch);
   },
 };
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<style scoped>
+.app-content.noHeader .main-content {
+  margin-top: 0; /* Menyesuaikan padding/top untuk konten tanpa header */
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
+.app-content .main-content.expanded {
+  margin-left: 250px; /* Menyesuaikan margin ketika sidebar terlihat */
 }
 </style>
